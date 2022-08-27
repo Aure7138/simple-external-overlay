@@ -7,6 +7,7 @@ inline uintptr_t CViewportGamePointer;
 inline uintptr_t WindowWidth;
 inline uintptr_t camGameplayDirectorPointer;
 inline uintptr_t CNetworkPlayerMgrPointer;
+inline uintptr_t AimCPedPTR;
 
 // CAutomobile : CVehicle : CPhysical : CDynamicEntity : CEntity : rage::fwEntity : rage::fwExtensibleBase : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 // fragInstGta : rage::phfwFragInst : rage::fragInst : rage::phInstBreakable : rage::phInst : rage::pgBase
@@ -27,6 +28,9 @@ inline uintptr_t CNetworkPlayerMgrPointer;
 // CNetGamePlayer : rage::netPlayer
 // CPlayerInfo : rage::fwExtensibleBase : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 // CPed : CPhysical : CDynamicEntity : CEntity : rage::fwEntity : rage::fwExtensibleBase : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// CPedWeaponManager : CInventoryListener : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// CWeaponInfo : CItemInfo : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// CPedInventory : CWeaponObserver : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 
 // Model Coordinates
 // World Coordinates
@@ -76,3 +80,17 @@ inline int CObjectCurrentCount;
 inline std::vector<Object> objects;
 
 inline std::vector<Player> players;
+
+struct trigger_bot_thread_globals_t
+{
+	bool enable_trigger_bot = false;
+};
+inline trigger_bot_thread_globals_t trigger_bot_thread_globals;
+
+struct main_script_thread_globals_t
+{
+	bool one_shoot_kill = false;
+	bool no_recoil = false;
+	bool no_spread = false;
+};
+inline main_script_thread_globals_t main_script_thread_globals;

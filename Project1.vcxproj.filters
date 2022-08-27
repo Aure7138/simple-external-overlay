@@ -72,6 +72,12 @@
     <ClCompile Include="functions\update_players.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="functions\trigger_bot_thread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\main_script_thread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h">

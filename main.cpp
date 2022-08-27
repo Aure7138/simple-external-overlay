@@ -2,10 +2,10 @@ bool is_menu_visible = true;
 void LoadIO();
 void LoadStyle();
 void MainWindow();
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	GetWindowThreadProcessId(FindWindowA("grcWindow", 0), &process_id);
-	handle = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, process_id);
+	handle = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, process_id);
 	std::cout << fmt::format("process_id: {}\nhandle: {}\n", process_id, handle);
 	ReplayInterfacePointer = Signature("\xE8\x00\x00\x00\x00\x40\x02\xFB\x40\x0A\xF0\x40\x3A\xFB\x72\xE1\x40\x84\xF6\x75\x72\x81\x7D\x00\x00\x00\x00\x00\x75\x69\x81\x7D\x00\x00\x00\x00\x00\x75\x60\x8B\x05\x00\x00\x00\x00\x39\x45\xBC", "x????xxxxxxxxxxxxxxxxxx?????xxxx?????xxxx????xxx"); // E8 ? ? ? ? 40 02 FB 40 0A F0 40 3A FB 72 E1 40 84 F6 75 72 81 7D ? ? ? ? ? 75 69 81 7D ? ? ? ? ? 75 60 8B 05 ? ? ? ? 39 45 BC
 	ReplayInterfacePointer = ReplayInterfacePointer + RPM<int>(ReplayInterfacePointer + 1) + 5;
@@ -30,7 +30,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 1) + 5;
     CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 3) + 7;
     std::cout << fmt::format("CNetworkPlayerMgrPointer: {}\n", CNetworkPlayerMgrPointer);
-
+    AimCPedPTR = Signature("\xE8\x00\x00\x00\x00\xB1\x01\x48\x81\xC4", "x????xxxxx"); // E8 ? ? ? ? B1 01 48 81 C4 ? ? ? ?
+    AimCPedPTR = AimCPedPTR + RPM<int>(AimCPedPTR + 1) + 5;
+    AimCPedPTR = AimCPedPTR + 0x293;
+    AimCPedPTR = AimCPedPTR + RPM<int>(AimCPedPTR + 3) + 7;
+    std::cout << fmt::format("AimCPedPTR: {}\n", AimCPedPTR);
 	//GDI::Init();
 	//while (true)
 	//{
@@ -86,9 +90,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         if (!j["player_box_color"].is_null()) D3D9::player_box_color = j["player_box_color"];
         if (!j["player_text_info"].is_null()) D3D9::player_text_info = j["player_text_info"];
         if (!j["player_text_info_color"].is_null()) D3D9::player_text_info_color = j["player_text_info_color"];
+        if (!j["trigger_bot_thread_globals"]["enable_trigger_bot"].is_null()) trigger_bot_thread_globals.enable_trigger_bot = j["trigger_bot_thread_globals"]["enable_trigger_bot"];
+        if (!j["main_script_thread_globals"]["no_recoil"].is_null()) main_script_thread_globals.no_recoil = j["main_script_thread_globals"]["no_recoil"];
+        if (!j["main_script_thread_globals"]["no_spread"].is_null()) main_script_thread_globals.no_spread = j["main_script_thread_globals"]["no_spread"];
+        if (!j["main_script_thread_globals"]["one_shoot_kill"].is_null()) main_script_thread_globals.one_shoot_kill = j["main_script_thread_globals"]["one_shoot_kill"];
     }
 
 	std::thread(D3D9::Init).detach();
+    std::thread(trigger_bot_thread).detach();
+    std::thread(main_script_thread).detach();
 
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Aure's Simple External Overlay"), NULL };
     ::RegisterClassEx(&wc);
@@ -251,6 +261,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         j["player_box_color"] = D3D9::player_box_color;
         j["player_text_info"] = D3D9::player_text_info;
         j["player_text_info_color"] = D3D9::player_text_info_color;
+        j["trigger_bot_thread_globals"]["enable_trigger_bot"] = trigger_bot_thread_globals.enable_trigger_bot;
+        j["main_script_thread_globals"]["no_recoil"] = main_script_thread_globals.no_recoil;
+        j["main_script_thread_globals"]["no_spread"] = main_script_thread_globals.no_spread;
+        j["main_script_thread_globals"]["one_shoot_kill"] = main_script_thread_globals.one_shoot_kill;
         o << std::setw(4) << j << std::endl;
     }
 
@@ -746,5 +760,10 @@ void MainWindow()
     default:
         break;
     }
+    ImGui::Columns(1);
+    ImGui::Checkbox("Enable Trigger Bot", &trigger_bot_thread_globals.enable_trigger_bot);
+    ImGui::Checkbox("No Recoil", &main_script_thread_globals.no_recoil);
+    ImGui::Checkbox("No Spread", &main_script_thread_globals.no_spread);
+    ImGui::Checkbox("One Shoot Kill", &main_script_thread_globals.one_shoot_kill);
 	ImGui::End();
 }
