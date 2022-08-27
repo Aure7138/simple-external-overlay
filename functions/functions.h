@@ -30,3 +30,4 @@ void update_objects();
 void update_players();
 void trigger_bot_thread();
 void main_script_thread();
+void aimbot_thread();

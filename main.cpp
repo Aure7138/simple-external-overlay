@@ -94,11 +94,14 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
         if (!j["main_script_thread_globals"]["no_recoil"].is_null()) main_script_thread_globals.no_recoil = j["main_script_thread_globals"]["no_recoil"];
         if (!j["main_script_thread_globals"]["no_spread"].is_null()) main_script_thread_globals.no_spread = j["main_script_thread_globals"]["no_spread"];
         if (!j["main_script_thread_globals"]["one_shoot_kill"].is_null()) main_script_thread_globals.one_shoot_kill = j["main_script_thread_globals"]["one_shoot_kill"];
+        if (!j["aimbot_thread_globals"]["enable_aimbot"].is_null()) aimbot_thread_globals.enable_aimbot = j["aimbot_thread_globals"]["enable_aimbot"];
+        if (!j["aimbot_thread_globals"]["exclude_player"].is_null()) aimbot_thread_globals.exclude_player = j["aimbot_thread_globals"]["exclude_player"];
     }
 
 	std::thread(D3D9::Init).detach();
     std::thread(trigger_bot_thread).detach();
     std::thread(main_script_thread).detach();
+    std::thread(aimbot_thread).detach();
 
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Aure's Simple External Overlay"), NULL };
     ::RegisterClassEx(&wc);
@@ -265,6 +268,8 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
         j["main_script_thread_globals"]["no_recoil"] = main_script_thread_globals.no_recoil;
         j["main_script_thread_globals"]["no_spread"] = main_script_thread_globals.no_spread;
         j["main_script_thread_globals"]["one_shoot_kill"] = main_script_thread_globals.one_shoot_kill;
+        j["aimbot_thread_globals"]["enable_aimbot"] = aimbot_thread_globals.enable_aimbot;
+        j["aimbot_thread_globals"]["exclude_player"] = aimbot_thread_globals.exclude_player;
         o << std::setw(4) << j << std::endl;
     }
 
@@ -761,9 +766,16 @@ void MainWindow()
         break;
     }
     ImGui::Columns(1);
+    ImGui::BeginGroup();
     ImGui::Checkbox("Enable Trigger Bot", &trigger_bot_thread_globals.enable_trigger_bot);
     ImGui::Checkbox("No Recoil", &main_script_thread_globals.no_recoil);
     ImGui::Checkbox("No Spread", &main_script_thread_globals.no_spread);
     ImGui::Checkbox("One Shoot Kill", &main_script_thread_globals.one_shoot_kill);
+    ImGui::EndGroup();
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    ImGui::Checkbox("Enable Aimbot (Hold Right Mouse)", &aimbot_thread_globals.enable_aimbot);
+    ImGui::Checkbox("Aimbot Exclude Player", &aimbot_thread_globals.exclude_player);
+    ImGui::EndGroup();
 	ImGui::End();
 }

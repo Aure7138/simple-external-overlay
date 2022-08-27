@@ -182,6 +182,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">common.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="D3D9\D3D9.cpp" />
+    <ClCompile Include="functions\aimbot_thread.cpp" />
     <ClCompile Include="functions\main_script_thread.cpp" />
     <ClCompile Include="functions\trigger_bot_thread.cpp" />
     <ClCompile Include="functions\update_automobiles.cpp" />

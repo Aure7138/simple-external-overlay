@@ -31,6 +31,10 @@ inline uintptr_t AimCPedPTR;
 // CPedWeaponManager : CInventoryListener : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 // CWeaponInfo : CItemInfo : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 // CPedInventory : CWeaponObserver : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// camFollowPedCamera : camFollowCamera : camThirdPersonCamera : camBaseCamera : camBaseObject : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// camFollowPedCameraMetadata : camFollowCameraMetadata : camThirdPersonCameraMetadata : camBaseCameraMetadata : camBaseObjectMetadata : rage::datBase
+// camFirstPersonShooterCamera : camFirstPersonAimCamera : camAimCamera : camBaseCamera : camBaseObject : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
+// camFirstPersonShooterCameraMetadata : camFirstPersonAimCameraMetadata : camAimCameraMetadata : camBaseCameraMetadata : camBaseObjectMetadata : rage::datBase
 
 // Model Coordinates
 // World Coordinates
@@ -53,7 +57,6 @@ inline int window_height;
 inline uintptr_t CViewportGame;
 inline float matrix[16];
 inline uintptr_t local_cped;
-inline uintptr_t camFollowPedCamera;
 
 inline uintptr_t CReplayInterfaceVeh;
 inline uintptr_t CAutombileList;
@@ -94,3 +97,10 @@ struct main_script_thread_globals_t
 	bool no_spread = false;
 };
 inline main_script_thread_globals_t main_script_thread_globals;
+
+struct aimbot_thread_globals_t
+{
+	bool enable_aimbot = false;
+	bool exclude_player = true;
+};
+inline aimbot_thread_globals_t aimbot_thread_globals;
