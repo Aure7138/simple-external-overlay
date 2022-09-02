@@ -2,7 +2,7 @@ void aimbot_thread()
 {
 	while(true)
 	{
-		if (aimbot_thread_globals.enable_aimbot && GetKeyState(VK_RBUTTON) < 0)
+		if (g->aimbot_thread.enable_aimbot && GetKeyState(VK_RBUTTON) < 0)
 		{
 			uintptr_t self_ped = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 			Vector3 self_pos = RPM<Vector3>(self_ped + 0x90);
@@ -28,7 +28,7 @@ void aimbot_thread()
 					continue;
 				if (RPM<float>(v + 0x280) < 100.0f)
 					continue;
-				if (aimbot_thread_globals.exclude_player && RPM<uintptr_t>(v + 0x10C8) != 0)
+				if (g->aimbot_thread.exclude_player && RPM<uintptr_t>(v + 0x10C8) != 0)
 					continue;
 				Vector3 pos = RPM<Vector3>(v + 0x90);
 				Vector3 screen;

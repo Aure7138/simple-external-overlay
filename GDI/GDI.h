@@ -9,5 +9,4 @@ public:
 	static void DrawBorderBox(int x, int y, int w, int h, int thickness);
 	static void DrawLine(float StartX, float StartY, float EndX, float EndY);
 	static void Init();
-	static void Draw();
 };

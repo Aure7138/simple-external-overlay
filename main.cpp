@@ -1,107 +1,106 @@
+struct FrameContext
+{
+    ID3D12CommandAllocator* CommandAllocator;
+    UINT64                  FenceValue;
+};
+
+static int const                    NUM_FRAMES_IN_FLIGHT = 3;
+static FrameContext                 g_frameContext[NUM_FRAMES_IN_FLIGHT] = {};
+static UINT                         g_frameIndex = 0;
+
+static int const                    NUM_BACK_BUFFERS = 3;
+static ID3D12Device* g_pd3dDevice = NULL;
+static ID3D12DescriptorHeap* g_pd3dRtvDescHeap = NULL;
+static ID3D12DescriptorHeap* g_pd3dSrvDescHeap = NULL;
+static ID3D12CommandQueue* g_pd3dCommandQueue = NULL;
+static ID3D12GraphicsCommandList* g_pd3dCommandList = NULL;
+static ID3D12Fence* g_fence = NULL;
+static HANDLE                       g_fenceEvent = NULL;
+static UINT64                       g_fenceLastSignaledValue = 0;
+static IDXGISwapChain3* g_pSwapChain = NULL;
+static HANDLE                       g_hSwapChainWaitableObject = NULL;
+static ID3D12Resource* g_mainRenderTargetResource[NUM_BACK_BUFFERS] = {};
+static D3D12_CPU_DESCRIPTOR_HANDLE  g_mainRenderTargetDescriptor[NUM_BACK_BUFFERS] = {};
+
+bool CreateDeviceD3D(HWND hWnd);
+void CleanupDeviceD3D();
+void CreateRenderTarget();
+void CleanupRenderTarget();
+void WaitForLastSubmittedFrame();
+FrameContext* WaitForNextFrameResources();
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 bool is_menu_visible = true;
 void LoadIO();
 void LoadStyle();
 void MainWindow();
+
 int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-	GetWindowThreadProcessId(FindWindowA("grcWindow", 0), &process_id);
+    try
+    {
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(spdlog::level::trace);
+        console_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %^[%l]%$ %v");
+
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/log.txt", true);
+        file_sink->set_level(spdlog::level::trace);
+        file_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %^[%l]%$ %v");
+
+        spdlog::init_thread_pool(1024, 4);
+        spdlog::set_default_logger(std::make_shared<spdlog::async_logger>("multi_sink", spdlog::sinks_init_list({ console_sink, file_sink }), spdlog::thread_pool(), spdlog::async_overflow_policy::block));
+    }
+    catch (const spdlog::spdlog_ex& ex)
+    {
+        std::cout << "Log initialization failed: " << ex.what() << std::endl;
+    }
+
+    target_hwnd = FindWindowA("grcWindow", 0);
+	GetWindowThreadProcessId(target_hwnd, &process_id);
+    spdlog::info("process_id                    : {}", process_id);
 	handle = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, process_id);
-	std::cout << fmt::format("process_id: {}\nhandle: {}\n", process_id, handle);
-	ReplayInterfacePointer = Signature("\xE8\x00\x00\x00\x00\x40\x02\xFB\x40\x0A\xF0\x40\x3A\xFB\x72\xE1\x40\x84\xF6\x75\x72\x81\x7D\x00\x00\x00\x00\x00\x75\x69\x81\x7D\x00\x00\x00\x00\x00\x75\x60\x8B\x05\x00\x00\x00\x00\x39\x45\xBC", "x????xxxxxxxxxxxxxxxxxx?????xxxx?????xxxx????xxx"); // E8 ? ? ? ? 40 02 FB 40 0A F0 40 3A FB 72 E1 40 84 F6 75 72 81 7D ? ? ? ? ? 75 69 81 7D ? ? ? ? ? 75 60 8B 05 ? ? ? ? 39 45 BC
+    spdlog::info("handle                        : {}", handle);
+	
+    ReplayInterfacePointer = Signature("\xE8\x00\x00\x00\x00\x40\x02\xFB\x40\x0A\xF0\x40\x3A\xFB\x72\xE1\x40\x84\xF6\x75\x72\x81\x7D\x00\x00\x00\x00\x00\x75\x69\x81\x7D\x00\x00\x00\x00\x00\x75\x60\x8B\x05\x00\x00\x00\x00\x39\x45\xBC", "x????xxxxxxxxxxxxxxxxxx?????xxxx?????xxxx????xxx"); // E8 ? ? ? ? 40 02 FB 40 0A F0 40 3A FB 72 E1 40 84 F6 75 72 81 7D ? ? ? ? ? 75 69 81 7D ? ? ? ? ? 75 60 8B 05 ? ? ? ? 39 45 BC
 	ReplayInterfacePointer = ReplayInterfacePointer + RPM<int>(ReplayInterfacePointer + 1) + 5;
 	ReplayInterfacePointer = ReplayInterfacePointer + 0x84;
 	ReplayInterfacePointer = ReplayInterfacePointer + RPM<int>(ReplayInterfacePointer + 3) + 7;
-	std::cout << fmt::format("ReplayInterfacePointer: {}\n", ReplayInterfacePointer);
-	CPedFactoryPointer = Signature("\x75\x17\x48\x8B\x0D\x00\x00\x00\x00\x8B\xC3", "xxxxx????xx"); // 75 17 48 8B 0D ? ? ? ? 8B C3
+    spdlog::info("ReplayInterfacePointer        : {:0X}", ReplayInterfacePointer);
+	
+    CPedFactoryPointer = Signature("\x75\x17\x48\x8B\x0D\x00\x00\x00\x00\x8B\xC3", "xxxxx????xx"); // 75 17 48 8B 0D ? ? ? ? 8B C3
 	CPedFactoryPointer = CPedFactoryPointer + 2;
 	CPedFactoryPointer = CPedFactoryPointer + RPM<int>(CPedFactoryPointer + 3) + 7;
-	std::cout << fmt::format("CPedFactoryPointer: {}\n", CPedFactoryPointer);
-	CViewportGamePointer = Signature("\x48\x8B\x15\x00\x00\x00\x00\x48\x8D\x2D\x00\x00\x00\x00\x48\x8B\xCD", "xxx????xxx????xxx"); // 48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD
+    spdlog::info("CPedFactoryPointer            : {:0X}", CPedFactoryPointer);
+	
+    CViewportGamePointer = Signature("\x48\x8B\x15\x00\x00\x00\x00\x48\x8D\x2D\x00\x00\x00\x00\x48\x8B\xCD", "xxx????xxx????xxx"); // 48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD
 	CViewportGamePointer = CViewportGamePointer + RPM<int>(CViewportGamePointer + 3) + 7;
-	std::cout << fmt::format("CViewportGamePointer: {}\n", CViewportGamePointer);
-	WindowWidth = Signature("\xF3\x0F\x10\x1D\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00", "xxxx????xx????"); // F3 0F 10 1D ? ? ? ? 8B 0D ? ? ? ?
+    spdlog::info("CViewportGamePointer          : {:0X}", CViewportGamePointer);
+	
+    WindowWidth = Signature("\xF3\x0F\x10\x1D\x00\x00\x00\x00\x8B\x0D\x00\x00\x00\x00", "xxxx????xx????"); // F3 0F 10 1D ? ? ? ? 8B 0D ? ? ? ?
 	WindowWidth = WindowWidth + 8;
 	WindowWidth = WindowWidth + RPM<int>(WindowWidth + 2) + 6;
-	std::cout << fmt::format("WindowWidth: {}\n", WindowWidth);
-	camGameplayDirectorPointer = Signature("\x48\x8B\x05\x00\x00\x00\x00\x38\x98\x00\x00\x00\x00\x8A\xC3", "xxx????xx????xx"); // 48 8B 05 ? ? ? ? 38 98 ? ? ? ? 8A C3
+    spdlog::info("WindowWidth                   : {:0X}", WindowWidth);
+	
+    camGameplayDirectorPointer = Signature("\x48\x8B\x05\x00\x00\x00\x00\x38\x98\x00\x00\x00\x00\x8A\xC3", "xxx????xx????xx"); // 48 8B 05 ? ? ? ? 38 98 ? ? ? ? 8A C3
 	camGameplayDirectorPointer = camGameplayDirectorPointer + RPM<int>(camGameplayDirectorPointer + 3) + 7;
-	std::cout << fmt::format("camGameplayDirectorPointer: {}\n", camGameplayDirectorPointer);
+    spdlog::info("camGameplayDirectorPointer    : {:0X}", camGameplayDirectorPointer);
+    
     CNetworkPlayerMgrPointer = Signature("\xE9\x00\x00\x00\x00\xCC\x41\x54\x41\xFF\x50\x10", "x????xxxxxxx"); // E9 ? ? ? ? CC 41 54 41 FF 50 10
     CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 1) + 5;
     CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 3) + 7;
-    std::cout << fmt::format("CNetworkPlayerMgrPointer: {}\n", CNetworkPlayerMgrPointer);
-    AimCPedPTR = Signature("\xE8\x00\x00\x00\x00\xB1\x01\x48\x81\xC4", "x????xxxxx"); // E8 ? ? ? ? B1 01 48 81 C4 ? ? ? ?
-    AimCPedPTR = AimCPedPTR + RPM<int>(AimCPedPTR + 1) + 5;
-    AimCPedPTR = AimCPedPTR + 0x293;
-    AimCPedPTR = AimCPedPTR + RPM<int>(AimCPedPTR + 3) + 7;
-    std::cout << fmt::format("AimCPedPTR: {}\n", AimCPedPTR);
-	//GDI::Init();
-	//while (true)
-	//{
-	//	update_data();
-	//	update_automobiles();
-	//	update_peds();
-	//	update_pickups();
-	//	update_objects();
-	//	GDI::Draw();
-	//}
+    spdlog::info("CNetworkPlayerMgrPointer      : {:0X}", CNetworkPlayerMgrPointer);
+    
+    AimCPedPointer = Signature("\xE8\x00\x00\x00\x00\xB1\x01\x48\x81\xC4", "x????xxxxx"); // E8 ? ? ? ? B1 01 48 81 C4 ? ? ? ?
+    AimCPedPointer = AimCPedPointer + RPM<int>(AimCPedPointer + 1) + 5;
+    AimCPedPointer = AimCPedPointer + 0x293;
+    AimCPedPointer = AimCPedPointer + RPM<int>(AimCPedPointer + 3) + 7;
+    spdlog::info("AimCPedPointer                : {:0X}", AimCPedPointer);
 
-
-    //D3D9::Init();
-    {
-        std::ifstream i("file.json");
-        json j;
-        if(i.is_open()) i >> j;
-        if (!j["enable_esp"].is_null()) D3D9::enable_esp = j["enable_esp"];
-        if (!j["render_only_in_game"].is_null()) D3D9::render_only_in_game = j["render_only_in_game"];
-        if (!j["text_info"].is_null()) D3D9::text_info = j["text_info"];
-        if (!j["text_info_color"].is_null()) D3D9::text_info_color = j["text_info_color"];
-
-        if (!j["cautomobile_esp"].is_null()) D3D9::cautomobile_esp = j["cautomobile_esp"];
-        if (!j["cautomobile_box"].is_null()) D3D9::cautomobile_box = j["cautomobile_box"];
-        if (!j["cautomobile_box_color"].is_null()) D3D9::cautomobile_box_color = j["cautomobile_box_color"];
-        if (!j["cautomobile_text_info"].is_null()) D3D9::cautomobile_text_info = j["cautomobile_text_info"];
-        if (!j["cautomobile_text_info_color"].is_null()) D3D9::cautomobile_text_info_color = j["cautomobile_text_info_color"];
-
-        if (!j["cped_esp"].is_null()) D3D9::cped_esp = j["cped_esp"];
-        if (!j["cped_esp_exclude_self"].is_null()) D3D9::cped_esp_exclude_self = j["cped_esp_exclude_self"];
-        if (!j["cped_box"].is_null()) D3D9::cped_box = j["cped_box"];
-        if (!j["cped_box_color"].is_null()) D3D9::cped_box_color = j["cped_box_color"];
-        if (!j["cped_text_info"].is_null()) D3D9::cped_text_info = j["cped_text_info"];
-        if (!j["cped_text_info_color"].is_null()) D3D9::cped_text_info_color = j["cped_text_info_color"];
-        if (!j["cped_bone"].is_null()) D3D9::cped_bone = j["cped_bone"];
-        if (!j["cped_bone_color"].is_null()) D3D9::cped_bone_color = j["cped_bone_color"];
-
-        if (!j["cpickup_esp"].is_null()) D3D9::cpickup_esp = j["cpickup_esp"];
-        if (!j["cpickup_box"].is_null()) D3D9::cpickup_box = j["cpickup_box"];
-        if (!j["cpickup_box_color"].is_null()) D3D9::cpickup_box_color = j["cpickup_box_color"];
-        if (!j["cpickup_text_info"].is_null()) D3D9::cpickup_text_info = j["cpickup_text_info"];
-        if (!j["cpickup_text_info_color"].is_null()) D3D9::cpickup_text_info_color = j["cpickup_text_info_color"];
-
-        if (!j["cobject_esp"].is_null()) D3D9::cobject_esp = j["cobject_esp"];
-        if (!j["cobject_box"].is_null()) D3D9::cobject_box = j["cobject_box"];
-        if (!j["cobject_box_color"].is_null()) D3D9::cobject_box_color = j["cobject_box_color"];
-        if (!j["cobject_text_info"].is_null()) D3D9::cobject_text_info = j["cobject_text_info"];
-        if (!j["cobject_text_info_color"].is_null()) D3D9::cobject_text_info_color = j["cobject_text_info_color"];
-
-        if (!j["player_esp"].is_null()) D3D9::player_esp = j["player_esp"];
-        if (!j["player_esp_exclude_self"].is_null()) D3D9::player_esp_exclude_self = j["player_esp_exclude_self"];
-        if (!j["player_box"].is_null()) D3D9::player_box = j["player_box"];
-        if (!j["player_box_color"].is_null()) D3D9::player_box_color = j["player_box_color"];
-        if (!j["player_text_info"].is_null()) D3D9::player_text_info = j["player_text_info"];
-        if (!j["player_text_info_color"].is_null()) D3D9::player_text_info_color = j["player_text_info_color"];
-        if (!j["trigger_bot_thread_globals"]["enable_trigger_bot"].is_null()) trigger_bot_thread_globals.enable_trigger_bot = j["trigger_bot_thread_globals"]["enable_trigger_bot"];
-        if (!j["main_script_thread_globals"]["no_recoil"].is_null()) main_script_thread_globals.no_recoil = j["main_script_thread_globals"]["no_recoil"];
-        if (!j["main_script_thread_globals"]["no_spread"].is_null()) main_script_thread_globals.no_spread = j["main_script_thread_globals"]["no_spread"];
-        if (!j["main_script_thread_globals"]["one_shoot_kill"].is_null()) main_script_thread_globals.one_shoot_kill = j["main_script_thread_globals"]["one_shoot_kill"];
-        if (!j["aimbot_thread_globals"]["enable_aimbot"].is_null()) aimbot_thread_globals.enable_aimbot = j["aimbot_thread_globals"]["enable_aimbot"];
-        if (!j["aimbot_thread_globals"]["exclude_player"].is_null()) aimbot_thread_globals.exclude_player = j["aimbot_thread_globals"]["exclude_player"];
-    }
-
-	std::thread(D3D9::Init).detach();
-    std::thread(trigger_bot_thread).detach();
-    std::thread(main_script_thread).detach();
+    g = std::make_unique<globals>();
     std::thread(aimbot_thread).detach();
+    std::thread(main_script_thread).detach();
+    std::thread(trigger_bot_thread).detach();
+    std::thread(render_thread).detach();
 
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("Aure's Simple External Overlay"), NULL };
     ::RegisterClassEx(&wc);
@@ -140,8 +139,7 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
         g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
         g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
 
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    bool show_demo_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     bool done = false;
@@ -168,8 +166,8 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
         if (is_menu_visible)
             MainWindow();
 
-        //if (show_demo_window)
-        //    ImGui::ShowDemoWindow(&show_demo_window);
+        if (show_demo_window)
+            ImGui::ShowDemoWindow(&show_demo_window);
 
         ImGui::Render();
 
@@ -222,56 +220,6 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
     CleanupDeviceD3D();
     ::DestroyWindow(hwnd);
     ::UnregisterClass(wc.lpszClassName, wc.hInstance);
-
-    {
-        std::ofstream o("file.json");
-        json j;
-        j["enable_esp"] = D3D9::enable_esp;
-        j["render_only_in_game"] = D3D9::render_only_in_game;
-        j["text_info"] = D3D9::text_info;
-        j["text_info_color"] = D3D9::text_info_color;
-
-        j["cautomobile_esp"] = D3D9::cautomobile_esp;
-        j["cautomobile_box"] = D3D9::cautomobile_box;
-        j["cautomobile_box_color"] = D3D9::cautomobile_box_color;
-        j["cautomobile_text_info"] = D3D9::cautomobile_text_info;
-        j["cautomobile_text_info_color"] = D3D9::cautomobile_text_info_color;
-
-        j["cped_esp"] = D3D9::cped_esp;
-        j["cped_esp_exclude_self"] = D3D9::cped_esp_exclude_self;
-        j["cped_box"] = D3D9::cped_box;
-        j["cped_box_color"] = D3D9::cped_box_color;
-        j["cped_text_info"] = D3D9::cped_text_info;
-        j["cped_text_info_color"] = D3D9::cped_text_info_color;
-        j["cped_bone"] = D3D9::cped_bone;
-        j["cped_bone_color"] = D3D9::cped_bone_color;
-
-        j["cpickup_esp"] = D3D9::cpickup_esp;
-        j["cpickup_box"] = D3D9::cpickup_box;
-        j["cpickup_box_color"] = D3D9::cpickup_box_color;
-        j["cpickup_text_info"] = D3D9::cpickup_text_info;
-        j["cpickup_text_info_color"] = D3D9::cpickup_text_info_color;
-
-        j["cobject_esp"] = D3D9::cobject_esp;
-        j["cobject_box"] = D3D9::cobject_box;
-        j["cobject_box_color"] = D3D9::cobject_box_color;
-        j["cobject_text_info"] = D3D9::cobject_text_info;
-        j["cobject_text_info_color"] = D3D9::cobject_text_info_color;
-
-        j["player_esp"] = D3D9::player_esp;
-        j["player_esp_exclude_self"] = D3D9::player_esp_exclude_self;
-        j["player_box"] = D3D9::player_box;
-        j["player_box_color"] = D3D9::player_box_color;
-        j["player_text_info"] = D3D9::player_text_info;
-        j["player_text_info_color"] = D3D9::player_text_info_color;
-        j["trigger_bot_thread_globals"]["enable_trigger_bot"] = trigger_bot_thread_globals.enable_trigger_bot;
-        j["main_script_thread_globals"]["no_recoil"] = main_script_thread_globals.no_recoil;
-        j["main_script_thread_globals"]["no_spread"] = main_script_thread_globals.no_spread;
-        j["main_script_thread_globals"]["one_shoot_kill"] = main_script_thread_globals.one_shoot_kill;
-        j["aimbot_thread_globals"]["enable_aimbot"] = aimbot_thread_globals.enable_aimbot;
-        j["aimbot_thread_globals"]["exclude_player"] = aimbot_thread_globals.exclude_player;
-        o << std::setw(4) << j << std::endl;
-    }
 
     return 0;
 }
@@ -621,13 +569,13 @@ void MainWindow()
 
 	ImGui::Text("INS Show/Hide Menu");
 	ImGui::Text("END To Quit Program");
-    ImGui::Checkbox("Enable ESP", &D3D9::enable_esp);
-    ImGui::Checkbox("Render Only In Game", &D3D9::render_only_in_game);
+    ImGui::Checkbox("Enable ESP", &g->render_thread.enable_esp);
+    ImGui::Checkbox("Render Only In Game", &g->render_thread.render_only_in_game);
 
     {
-        ImGui::Checkbox("Show Text", &D3D9::text_info);
-        static ImVec4 color = D3DCOLOR2ImVec4(D3D9::text_info_color);
-        if (ImGui::ColorEdit4("Text Color", (float*)&color)) { D3D9::text_info_color = ImVec42D3DCOLOR(color); }
+        ImGui::Checkbox("Show Text", &g->render_thread.text_info);
+        static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.text_info_color);
+        if (ImGui::ColorEdit4("Text Color", (float*)&color)) { g->render_thread.text_info_color = ImVec42D3DCOLOR(color); }
     }
 
     ImGui::NextColumn();
@@ -669,96 +617,96 @@ void MainWindow()
     {
     case 0:
     {
-        ImGui::Checkbox("Automobile Esp", &D3D9::cautomobile_esp);
+        ImGui::Checkbox("Automobile Esp", &g->render_thread.automobile_esp);
 
         {
-            ImGui::Checkbox("Automobile Box", &D3D9::cautomobile_box);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cautomobile_box_color);
-            if (ImGui::ColorEdit4("Automobile Box Color", (float*)&color)) { D3D9::cautomobile_box_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Automobile Box", &g->render_thread.automobile_box);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.automobile_box_color);
+            if (ImGui::ColorEdit4("Automobile Box Color", (float*)&color)) { g->render_thread.automobile_box_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Automobile Text Info", &D3D9::cautomobile_text_info);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cautomobile_text_info_color);
-            if (ImGui::ColorEdit4("Automobile Text Info Color", (float*)&color)) { D3D9::cautomobile_text_info_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Automobile Text Info", &g->render_thread.automobile_text_info);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.automobile_text_info_color);
+            if (ImGui::ColorEdit4("Automobile Text Info Color", (float*)&color)) { g->render_thread.automobile_text_info_color = ImVec42D3DCOLOR(color); }
         }
     }
     break;
     case 1:
     {
-        ImGui::Checkbox("Ped Esp", &D3D9::cped_esp);
+        ImGui::Checkbox("Ped Esp", &g->render_thread.ped_esp);
 
-        ImGui::Checkbox("Ped Esp Exclude Self", &D3D9::cped_esp_exclude_self);
+        ImGui::Checkbox("Ped Esp Exclude Self", &g->render_thread.ped_esp_exclude_self);
 
         {
-            ImGui::Checkbox("Ped Box", &D3D9::cped_box);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cped_box_color);
-            if (ImGui::ColorEdit4("Ped Box Color", (float*)&color)) { D3D9::cped_box_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Ped Box", &g->render_thread.ped_box);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.ped_box_color);
+            if (ImGui::ColorEdit4("Ped Box Color", (float*)&color)) { g->render_thread.ped_box_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Ped Text Info", &D3D9::cped_text_info);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cped_text_info_color);
-            if (ImGui::ColorEdit4("Ped Text Info Color", (float*)&color)) { D3D9::cped_text_info_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Ped Text Info", &g->render_thread.ped_text_info);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.ped_text_info_color);
+            if (ImGui::ColorEdit4("Ped Text Info Color", (float*)&color)) { g->render_thread.ped_text_info_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Ped Bone", &D3D9::cped_bone);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cped_bone_color);
-            if (ImGui::ColorEdit4("Ped Bone Color", (float*)&color)) { D3D9::cped_bone_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Ped Bone", &g->render_thread.ped_bone);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.ped_bone_color);
+            if (ImGui::ColorEdit4("Ped Bone Color", (float*)&color)) { g->render_thread.ped_bone_color = ImVec42D3DCOLOR(color); }
         }
     }
     break;
     case 2:
     {
-        ImGui::Checkbox("Pickup Esp", &D3D9::cpickup_esp);
+        ImGui::Checkbox("Pickup Esp", &g->render_thread.pickup_esp);
 
         {
-            ImGui::Checkbox("Pickup Box", &D3D9::cpickup_box);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cpickup_box_color);
-            if (ImGui::ColorEdit4("Pickup Box Color", (float*)&color)) { D3D9::cpickup_box_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Pickup Box", &g->render_thread.pickup_box);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.pickup_box_color);
+            if (ImGui::ColorEdit4("Pickup Box Color", (float*)&color)) { g->render_thread.pickup_box_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Pickup Text Info", &D3D9::cpickup_text_info);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cpickup_text_info_color);
-            if (ImGui::ColorEdit4("Pickup Text Info Color", (float*)&color)) { D3D9::cpickup_text_info_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Pickup Text Info", &g->render_thread.pickup_text_info);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.pickup_text_info_color);
+            if (ImGui::ColorEdit4("Pickup Text Info Color", (float*)&color)) { g->render_thread.pickup_text_info_color = ImVec42D3DCOLOR(color); }
         }
     }
     break;
     case 3:
     {
-        ImGui::Checkbox("Object Esp", &D3D9::cobject_esp);
+        ImGui::Checkbox("Object Esp", &g->render_thread.object_esp);
 
         {
-            ImGui::Checkbox("Object Box", &D3D9::cobject_box);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cobject_box_color);
-            if (ImGui::ColorEdit4("Object Box Color", (float*)&color)) { D3D9::cobject_box_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Object Box", &g->render_thread.object_box);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.object_box_color);
+            if (ImGui::ColorEdit4("Object Box Color", (float*)&color)) { g->render_thread.object_box_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Object Text Info", &D3D9::cobject_text_info);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::cobject_text_info_color);
-            if (ImGui::ColorEdit4("Object Text Info Color", (float*)&color)) { D3D9::cobject_text_info_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Object Text Info", &g->render_thread.object_text_info);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.object_text_info_color);
+            if (ImGui::ColorEdit4("Object Text Info Color", (float*)&color)) { g->render_thread.object_text_info_color = ImVec42D3DCOLOR(color); }
         }
     }
     break;
     case 4:
     {
-        ImGui::Checkbox("Player Esp", &D3D9::player_esp);
+        ImGui::Checkbox("Player Esp", &g->render_thread.player_esp);
 
-        ImGui::Checkbox("Player Esp Exclude Self", &D3D9::player_esp_exclude_self);
+        ImGui::Checkbox("Player Esp Exclude Self", &g->render_thread.player_esp_exclude_self);
 
         {
-            ImGui::Checkbox("Player Box", &D3D9::player_box);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::player_box_color);
-            if (ImGui::ColorEdit4("Player Box Color", (float*)&color)) { D3D9::player_box_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Player Box", &g->render_thread.player_box);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.player_box_color);
+            if (ImGui::ColorEdit4("Player Box Color", (float*)&color)) { g->render_thread.player_box_color = ImVec42D3DCOLOR(color); }
         }
 
         {
-            ImGui::Checkbox("Player Text Info", &D3D9::player_text_info);
-            static ImVec4 color = D3DCOLOR2ImVec4(D3D9::player_text_info_color);
-            if (ImGui::ColorEdit4("Player Text Info Color", (float*)&color)) { D3D9::player_text_info_color = ImVec42D3DCOLOR(color); }
+            ImGui::Checkbox("Player Text Info", &g->render_thread.player_text_info);
+            static ImVec4 color = D3DCOLOR2ImVec4(g->render_thread.player_text_info_color);
+            if (ImGui::ColorEdit4("Player Text Info Color", (float*)&color)) { g->render_thread.player_text_info_color = ImVec42D3DCOLOR(color); }
         }
     }
     break;
@@ -766,16 +714,17 @@ void MainWindow()
         break;
     }
     ImGui::Columns(1);
+    ImGui::Separator();
     ImGui::BeginGroup();
-    ImGui::Checkbox("Enable Trigger Bot", &trigger_bot_thread_globals.enable_trigger_bot);
-    ImGui::Checkbox("No Recoil", &main_script_thread_globals.no_recoil);
-    ImGui::Checkbox("No Spread", &main_script_thread_globals.no_spread);
-    ImGui::Checkbox("One Shoot Kill", &main_script_thread_globals.one_shoot_kill);
+    ImGui::Checkbox("Enable Trigger Bot", &g->trigger_bot_thread.enable_trigger_bot);
+    ImGui::Checkbox("No Recoil", &g->main_script_thread.no_recoil);
+    ImGui::Checkbox("No Spread", &g->main_script_thread.no_spread);
+    ImGui::Checkbox("One Shoot Kill", &g->main_script_thread.one_shoot_kill);
     ImGui::EndGroup();
     ImGui::SameLine();
     ImGui::BeginGroup();
-    ImGui::Checkbox("Enable Aimbot (Hold Right Mouse)", &aimbot_thread_globals.enable_aimbot);
-    ImGui::Checkbox("Aimbot Exclude Player", &aimbot_thread_globals.exclude_player);
+    ImGui::Checkbox("Enable Aimbot (Hold Right Mouse)", &g->aimbot_thread.enable_aimbot);
+    ImGui::Checkbox("Aimbot Exclude Player", &g->aimbot_thread.exclude_player);
     ImGui::EndGroup();
 	ImGui::End();
 }

@@ -25,21 +25,3 @@ void GDI::Init()
 	brush = CreateSolidBrush(color);
 	hdc = GetDC(FindWindowA("grcWindow", 0));
 }
-void GDI::Draw()
-{
-	for (size_t i = 0; i < peds.size(); i++)
-	{
-		Ped& ped = peds[i];
-		if (ped.is_world_to_screen_success)
-		{
-			DrawLine(ped.bones_image_coordinates[Bone::Head].x, ped.bones_image_coordinates[Bone::Head].y, ped.bones_image_coordinates[Bone::Neck].x, ped.bones_image_coordinates[Bone::Neck].y);
-			DrawLine(ped.bones_image_coordinates[Bone::LeftHand].x, ped.bones_image_coordinates[Bone::LeftHand].y, ped.bones_image_coordinates[Bone::Neck].x, ped.bones_image_coordinates[Bone::Neck].y);
-			DrawLine(ped.bones_image_coordinates[Bone::RightHand].x, ped.bones_image_coordinates[Bone::RightHand].y, ped.bones_image_coordinates[Bone::Neck].x, ped.bones_image_coordinates[Bone::Neck].y);
-			DrawLine(ped.bones_image_coordinates[Bone::Abdomen].x, ped.bones_image_coordinates[Bone::Abdomen].y, ped.bones_image_coordinates[Bone::Neck].x, ped.bones_image_coordinates[Bone::Neck].y);
-			DrawLine(ped.bones_image_coordinates[Bone::Abdomen].x, ped.bones_image_coordinates[Bone::Abdomen].y, ped.bones_image_coordinates[Bone::LeftAnkle].x, ped.bones_image_coordinates[Bone::LeftAnkle].y);
-			DrawLine(ped.bones_image_coordinates[Bone::Abdomen].x, ped.bones_image_coordinates[Bone::Abdomen].y, ped.bones_image_coordinates[Bone::RightAnkle].x, ped.bones_image_coordinates[Bone::RightAnkle].y);
-			DrawLine(ped.bones_image_coordinates[Bone::RightAnkle].x, ped.bones_image_coordinates[Bone::RightAnkle].y, ped.bones_image_coordinates[Bone::RightToe].x, ped.bones_image_coordinates[Bone::RightToe].y);
-			DrawLine(ped.bones_image_coordinates[Bone::LeftAnkle].x, ped.bones_image_coordinates[Bone::LeftAnkle].y, ped.bones_image_coordinates[Bone::LeftToe].x, ped.bones_image_coordinates[Bone::LeftToe].y);
-		}
-	}
-}

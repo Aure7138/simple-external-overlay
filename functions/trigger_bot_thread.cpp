@@ -4,9 +4,9 @@ void trigger_bot_thread()
 	{
 		static HWND target_hwnd = FindWindowA("grcWindow", 0);
 		static bool state = false;
-		if (trigger_bot_thread_globals.enable_trigger_bot && target_hwnd == GetForegroundWindow())
+		if (g->trigger_bot_thread.enable_trigger_bot && target_hwnd == GetForegroundWindow())
 		{
-			uintptr_t CPed = RPM<uintptr_t>(AimCPedPTR);
+			uintptr_t CPed = RPM<uintptr_t>(AimCPedPointer);
 			if (CPed != 0 && RPM<float>(CPed + 0x280) >= 100.0f)
 			{
 				mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0); // Press

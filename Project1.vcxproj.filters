@@ -24,18 +24,6 @@
     <ClCompile Include="functions\signature.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="functions\update_automobiles.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\update_peds.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\update_pickups.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\update_objects.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="functions\world_to_screen.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -60,16 +48,10 @@
     <ClCompile Include="D3D9\D3D9.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="functions\update_data.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="imgui\imgui_impl_dx12.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_win32.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\update_players.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="functions\trigger_bot_thread.cpp">
@@ -79,6 +61,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="functions\aimbot_thread.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\render_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

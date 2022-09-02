@@ -1,7 +1,7 @@
 void main_script_thread()
 {
 	while (true) {
-		if (main_script_thread_globals.no_recoil)
+		if (g->main_script_thread.no_recoil)
 		{
 			uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 			if (CPed)
@@ -18,7 +18,7 @@ void main_script_thread()
 				}
 			}
 		}
-		if (main_script_thread_globals.no_spread)
+		if (g->main_script_thread.no_spread)
 		{
 			uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 			if (CPed)
@@ -36,7 +36,7 @@ void main_script_thread()
 		}
 		{
 			static bool state = false;
-			if (main_script_thread_globals.one_shoot_kill)
+			if (g->main_script_thread.one_shoot_kill)
 			{
 				uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 				if (CPed)

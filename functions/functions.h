@@ -22,12 +22,8 @@ template<typename T> void WPM(uintptr_t address, T value, std::vector<int64_t> o
 }
 bool WorldToScreen(vec3_t pos, vec2& screen, float matrix[16], int windowWidth, int windowHeight);
 bool WorldToScreen(vec3_t pos, vec3_t& screen, float matrix[16], int windowWidth, int windowHeight);
-void update_data();
-void update_automobiles();
-void update_peds();
-void update_pickups();
-void update_objects();
-void update_players();
+
 void trigger_bot_thread();
 void main_script_thread();
 void aimbot_thread();
+void render_thread();
