@@ -28,7 +28,7 @@ void aimbot_thread()
 					continue;
 				if (RPM<float>(v + 0x280) < 100.0f)
 					continue;
-				if (g->aimbot_thread.exclude_player && RPM<uintptr_t>(v + 0x10C8) != 0)
+				if (g->aimbot_thread.exclude_player && RPM<uintptr_t>(v + 0x10A8) != 0)
 					continue;
 				Vector3 pos = RPM<Vector3>(v + 0x90);
 				Vector3 screen;
@@ -46,7 +46,7 @@ void aimbot_thread()
 			{
 				float model_matrix[16];
 				ReadProcessMemory(handle, LPCVOID(target_ped + 0x60), model_matrix, 16 * 4, 0);
-				Vector3 pos = RPM<Vector3>(target_ped + 0x430);
+				Vector3 pos = RPM<Vector3>(target_ped + 0x410);
 				Vector3 bone_head_pos;
 				bone_head_pos.x = pos.x * model_matrix[0] + pos.y * model_matrix[4] + pos.z * model_matrix[8] + model_matrix[12];
 				bone_head_pos.y = pos.x * model_matrix[1] + pos.y * model_matrix[5] + pos.z * model_matrix[9] + model_matrix[13];

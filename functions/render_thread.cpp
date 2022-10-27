@@ -107,12 +107,12 @@ void render_thread()
                                     D3D9::BorderedBox(image_coordinates.x - box_width / 2, image_coordinates.y - box_height / 2, box_width, box_height, 1, g->render_thread.ped_box_color);
                                     D3D9::Line(width / 2, 0, head_image_coordinates.x, head_image_coordinates.y, g->render_thread.ped_box_color);
                                 }
-                                if (g->render_thread.automobile_text_info)
+                                if (g->render_thread.ped_text_info)
                                 {
                                     uintptr_t model_info = RPM<uintptr_t>(instance + 0x20);
                                     uint32_t hash = RPM<uint32_t>(model_info + 0x18);
                                     float health = RPM<float>(instance + 0x280);
-                                    uint32_t ped_type = RPM<uint32_t>(instance + 0x10B8);
+                                    uint32_t ped_type = RPM<uint32_t>(instance + 0x1098);
                                     ped_type = ped_type << 11 >> 25;
                                     D3D9::String(image_coordinates.x + box_width / 2 + 3, image_coordinates.y - box_height / 2, g->render_thread.ped_text_info_color, D3D9::font_small, false, fmt::format("Hash: {}\nPed Type: {}\nHealth: {}", hash, ped_type, health).c_str());
                                 }
@@ -125,12 +125,16 @@ void render_thread()
                                     Vector3 bones_image_coordinates[9];
                                     for (int k = 0; k < 9; k++)
                                     {
-                                        bones_model_coordinates[k] = RPM<Vector3>(instance + 0x430 + k * 0x10);
+                                        bones_model_coordinates[k] = RPM<Vector3>(instance + 0x410 + k * 0x10);
                                         bones_world_coordinates[k].x = bones_model_coordinates[k].x * model_matrix[0] + bones_model_coordinates[k].y * model_matrix[4] + bones_model_coordinates[k].z * model_matrix[8] + model_matrix[12];
                                         bones_world_coordinates[k].y = bones_model_coordinates[k].x * model_matrix[1] + bones_model_coordinates[k].y * model_matrix[5] + bones_model_coordinates[k].z * model_matrix[9] + model_matrix[13];
                                         bones_world_coordinates[k].z = bones_model_coordinates[k].x * model_matrix[2] + bones_model_coordinates[k].y * model_matrix[6] + bones_model_coordinates[k].z * model_matrix[10] + model_matrix[14];
                                         WorldToScreen(bones_world_coordinates[k], bones_image_coordinates[k], matrix, width, height);
                                     }
+                                    //for (int k = 0; k < 9; k++)
+                                    //{
+                                    //    D3D9::Line(width / 2, height, bones_image_coordinates[k].x, bones_image_coordinates[k].y, g->render_thread.ped_bone_color);
+                                    //}
                                     D3D9::Line(bones_image_coordinates[Bone::Head].x, bones_image_coordinates[Bone::Head].y, bones_image_coordinates[Bone::Neck].x, bones_image_coordinates[Bone::Neck].y, g->render_thread.ped_bone_color);
                                     D3D9::Line(bones_image_coordinates[Bone::LeftHand].x, bones_image_coordinates[Bone::LeftHand].y, bones_image_coordinates[Bone::Neck].x, bones_image_coordinates[Bone::Neck].y, g->render_thread.ped_bone_color);
                                     D3D9::Line(bones_image_coordinates[Bone::RightHand].x, bones_image_coordinates[Bone::RightHand].y, bones_image_coordinates[Bone::Neck].x, bones_image_coordinates[Bone::Neck].y, g->render_thread.ped_bone_color);
@@ -217,9 +221,10 @@ void render_thread()
                     {
                         for (int i = 0; i < 32; i++)
                         {
-                            uintptr_t instance = RPM<uintptr_t>(player + 0xA0, { 0x1E8 });
+                            uintptr_t instance = RPM<uintptr_t>(player + 0x180 + i * 8);
                             if (instance == 0)
                                 continue;
+                            instance = RPM<uintptr_t>(instance + 0xA0, { 0x1E8 });
                             if (g->render_thread.player_esp_exclude_self && instance == local_ped)
                                 continue;
                             Vector3 world_coordinates = RPM<Vector3>(instance + 0x90);
@@ -231,7 +236,7 @@ void render_thread()
                                 Vector3 head_image_coordinates;
                                 WorldToScreen(head_world_coordinates, head_image_coordinates, matrix, width, height);
                                 int box_height = (image_coordinates.y - head_image_coordinates.y) * 2;
-                                int box_width = box_height * 2.4;
+                                int box_width = box_height / 2.4;
                                 if (g->render_thread.player_box)
                                 {
                                     D3D9::BorderedBox(image_coordinates.x - box_width / 2, image_coordinates.y - box_height / 2, box_width, box_height, 1, g->render_thread.player_box_color);

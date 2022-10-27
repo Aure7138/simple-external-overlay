@@ -85,8 +85,7 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
 	camGameplayDirectorPointer = camGameplayDirectorPointer + RPM<int>(camGameplayDirectorPointer + 3) + 7;
     spdlog::info("camGameplayDirectorPointer    : {:0X}", camGameplayDirectorPointer);
     
-    CNetworkPlayerMgrPointer = Signature("\xE9\x00\x00\x00\x00\xCC\x41\x54\x41\xFF\x50\x10", "x????xxxxxxx"); // E9 ? ? ? ? CC 41 54 41 FF 50 10
-    CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 1) + 5;
+    CNetworkPlayerMgrPointer = Signature("\x48\x8B\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x37", "xxx????x????xxxxx"); // 48 8B 0D ? ? ? ? E8 ? ? ? ? 48 85 C0 74 37
     CNetworkPlayerMgrPointer = CNetworkPlayerMgrPointer + RPM<int>(CNetworkPlayerMgrPointer + 3) + 7;
     spdlog::info("CNetworkPlayerMgrPointer      : {:0X}", CNetworkPlayerMgrPointer);
     

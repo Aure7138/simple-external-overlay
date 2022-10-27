@@ -6,7 +6,7 @@ void main_script_thread()
 			uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 			if (CPed)
 			{
-				uintptr_t CPedWeaponManager = RPM<uintptr_t>(CPed + 0x10D8);
+				uintptr_t CPedWeaponManager = RPM<uintptr_t>(CPed + 0x10B8);
 				if (CPedWeaponManager)
 				{
 					uintptr_t CWeaponInfo = RPM<uintptr_t>(CPedWeaponManager + 0x20);
@@ -23,7 +23,7 @@ void main_script_thread()
 			uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 			if (CPed)
 			{
-				uintptr_t CPedWeaponManager = RPM<uintptr_t>(CPed + 0x10D8);
+				uintptr_t CPedWeaponManager = RPM<uintptr_t>(CPed + 0x10B8);
 				if (CPedWeaponManager)
 				{
 					uintptr_t CWeaponInfo = RPM<uintptr_t>(CPedWeaponManager + 0x20);
@@ -41,7 +41,7 @@ void main_script_thread()
 				uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 				if (CPed)
 				{
-					uintptr_t CPlayerInfo = RPM<uintptr_t>(CPed + 0x10C8);
+					uintptr_t CPlayerInfo = RPM<uintptr_t>(CPed + 0x10A8);
 					if (CPlayerInfo)
 					{
 						WPM<float>(CPlayerInfo + 0xD0C, 999999);
@@ -55,7 +55,7 @@ void main_script_thread()
 				uintptr_t CPed = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
 				if (CPed)
 				{
-					uintptr_t CPlayerInfo = RPM<uintptr_t>(CPed + 0x10C8);
+					uintptr_t CPlayerInfo = RPM<uintptr_t>(CPed + 0x10A8);
 					if (CPlayerInfo)
 					{
 						WPM<float>(CPlayerInfo + 0xD0C, 1);
