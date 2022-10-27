@@ -1,6 +1,22 @@
 void aimbot_thread()
 {
-	while(true)
+	DWORD64 collimationPed;
+	long isCollimationResult = 0;
+	float collimationPedHealth = 0;
+
+	INPUT Inputs[3] = { 0 };
+	//Inputs[0].type = INPUT_MOUSE;
+	//Inputs[0].mi.dx = ...; // desired X coordinate
+	//Inputs[0].mi.dy = ...; // desired Y coordinate
+	//Inputs[0].mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+
+	Inputs[1].type = INPUT_MOUSE;
+	Inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+
+	Inputs[2].type = INPUT_MOUSE;
+	Inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+	//uintptr_t collimation_ped = RPM<uintptr_t>(CPedFactoryPointer, { 0x8 });
+	while (true)
 	{
 		if (g->aimbot_thread.enable_aimbot && GetKeyState(VK_RBUTTON) < 0)
 		{
@@ -10,7 +26,7 @@ void aimbot_thread()
 			ReadProcessMemory(handle, LPCVOID(RPM<uintptr_t>(CViewportGamePointer) + 0x250), matrix_, 16 * 4, 0);
 			int game_window_width = RPM<int>(WindowWidth);
 			int game_window_height = RPM<int>(WindowWidth + 0x4);
-			
+
 			uintptr_t p = RPM<uintptr_t>(ReplayInterfacePointer, { 0x18 });
 			uintptr_t list = RPM<uintptr_t>(p + 0x100);
 			int max_count = RPM<int>(p + 0x108);
@@ -67,6 +83,18 @@ void aimbot_thread()
 					WPM<Vector3>(camFollowPedCamera + 0x40, angle);
 				else
 					WPM<Vector3>(camFollowPedCamera + 0x3D0, angle);
+
+
+				ReadProcessMemory(handle, LPCVOID(isCollimationAddress), &isCollimationResult, sizeof(DWORD64), 0);
+				ReadProcessMemory(handle, (LPCVOID)collimationPedAddress, &collimationPed, sizeof(DWORD64), 0);
+				ReadProcessMemory(handle, (LPCVOID)(collimationPed + 0x280), &collimationPedHealth, sizeof(DWORD), 0);
+
+				if (collimationPedHealth >= 100 && isCollimationResult>0)
+				{
+					SendInput(1, &Inputs[1], sizeof(INPUT));
+					Sleep(DWORD(5));
+					SendInput(1, &Inputs[2], sizeof(INPUT));
+				}
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));

@@ -9,6 +9,8 @@ inline uintptr_t WindowWidth;
 inline uintptr_t camGameplayDirectorPointer;
 inline uintptr_t CNetworkPlayerMgrPointer;
 inline uintptr_t AimCPedPointer;
+inline uintptr_t isCollimationAddress;
+inline uintptr_t collimationPedAddress;
 
 // CAutomobile : CVehicle : CPhysical : CDynamicEntity : CEntity : rage::fwEntity : rage::fwExtensibleBase : rage::fwRefAwareBase : rage::fwRefAwareBaseImpl<rage::datBase> : rage::datBase
 // fragInstGta : rage::phfwFragInst : rage::fragInst : rage::phInstBreakable : rage::phInst : rage::pgBase
