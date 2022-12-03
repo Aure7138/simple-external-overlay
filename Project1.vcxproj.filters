@@ -15,117 +15,63 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="common.cpp">
+    <ClCompile Include="src\common.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="functions\signature.cpp">
+    <ClCompile Include="src\functions\trigger_bot_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="functions\world_to_screen.cpp">
+    <ClCompile Include="src\functions\main_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="GDI\GDI.cpp">
+    <ClCompile Include="src\functions\aimbot_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui.cpp">
+    <ClCompile Include="src\functions\update_esp_data_thread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_demo.cpp">
+    <ClCompile Include="vendor\imgui\imgui_impl_win32.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_draw.cpp">
+    <ClCompile Include="vendor\imgui\imgui_impl_dx11.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_tables.cpp">
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_widgets.cpp">
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="D3D9\D3D9.cpp">
+    <ClCompile Include="vendor\imgui\imgui.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_dx12.cpp">
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_win32.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\trigger_bot_thread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\main_script_thread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\aimbot_thread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="functions\render_thread.cpp">
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="globals.h">
+    <ClInclude Include="src\functions\functions.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="functions\functions.h">
+    <ClInclude Include="src\types.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="types.h">
+    <ClInclude Include="src\common.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="src\settings.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="enum.h">
+    <ClInclude Include="src\signature.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GDI\GDI.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imconfig.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_internal.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_rectpack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_textedit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_truetype.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D9\D3D9.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="fonts\fa-regular-400.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="fonts\fa-solid-900.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="fonts\IconsFontAwesome5.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="fonts\NotoSans-Regular.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="fonts\seguisym.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_win32.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_dx12.h">
+    <ClInclude Include="src\util\misc.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
