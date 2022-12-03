@@ -50,36 +50,43 @@ public:
 	settings()
 	{
 		std::ifstream f("settings.json");
-		nlohmann::json j = nlohmann::json::parse(f);
-		menu_opened = j["menu_opened"];
-		weapon.no_recoil = j["weapon"]["no_recoil"];
-		weapon.no_spread = j["weapon"]["no_spread"];
-		weapon.one_shoot_kill = j["weapon"]["one_shoot_kill"];
-		weapon.trigger_bot = j["weapon"]["trigger_bot"];
-		weapon.aimbot = j["weapon"]["aimbot"];
-		weapon.aimbot_player_only = j["weapon"]["aimbot_player_only"];
-		self.never_wanted = j["self"]["never_wanted"];
-		esp.enable = j["esp"]["enable"];
-		esp.color = (ImColor)j["esp"]["color"];
-		esp.vehicle.enable = j["esp"]["vehicle"]["enbale"];
-		esp.vehicle.line = j["esp"]["vehicle"]["line"];
-		esp.vehicle.text = j["esp"]["vehicle"]["text"];
-		esp.vehicle.color = (ImColor)j["esp"]["vehicle"]["color"];
-		esp.ped.enable = j["esp"]["ped"]["enbale"];
-		esp.ped.line = j["esp"]["ped"]["line"];
-		esp.ped.text = j["esp"]["ped"]["text"];
-		esp.ped.bone = j["esp"]["ped"]["bone"];
-		esp.ped.box = j["esp"]["ped"]["box"];
-		esp.ped.color = (ImColor)j["esp"]["ped"]["color"];
-		esp.ped.exclude_self = j["esp"]["ped"]["exclude_self"];
-		esp.pickup.enable = j["esp"]["pickup"]["enbale"];
-		esp.pickup.line = j["esp"]["pickup"]["line"];
-		esp.pickup.text = j["esp"]["pickup"]["text"];
-		esp.pickup.color = (ImColor)j["esp"]["pickup"]["color"];
-		esp.object.enable = j["esp"]["object"]["enbale"];
-		esp.object.line = j["esp"]["object"]["line"];
-		esp.object.text = j["esp"]["object"]["text"];
-		esp.object.color = (ImColor)j["esp"]["object"]["color"];
+		try
+		{
+			nlohmann::json j = nlohmann::json::parse(f);
+			menu_opened = j["menu_opened"];
+			weapon.no_recoil = j["weapon"]["no_recoil"];
+			weapon.no_spread = j["weapon"]["no_spread"];
+			weapon.one_shoot_kill = j["weapon"]["one_shoot_kill"];
+			weapon.trigger_bot = j["weapon"]["trigger_bot"];
+			weapon.aimbot = j["weapon"]["aimbot"];
+			weapon.aimbot_player_only = j["weapon"]["aimbot_player_only"];
+			self.never_wanted = j["self"]["never_wanted"];
+			esp.enable = j["esp"]["enable"];
+			esp.color = (ImColor)j["esp"]["color"];
+			esp.vehicle.enable = j["esp"]["vehicle"]["enbale"];
+			esp.vehicle.line = j["esp"]["vehicle"]["line"];
+			esp.vehicle.text = j["esp"]["vehicle"]["text"];
+			esp.vehicle.color = (ImColor)j["esp"]["vehicle"]["color"];
+			esp.ped.enable = j["esp"]["ped"]["enbale"];
+			esp.ped.line = j["esp"]["ped"]["line"];
+			esp.ped.text = j["esp"]["ped"]["text"];
+			esp.ped.bone = j["esp"]["ped"]["bone"];
+			esp.ped.box = j["esp"]["ped"]["box"];
+			esp.ped.color = (ImColor)j["esp"]["ped"]["color"];
+			esp.ped.exclude_self = j["esp"]["ped"]["exclude_self"];
+			esp.pickup.enable = j["esp"]["pickup"]["enbale"];
+			esp.pickup.line = j["esp"]["pickup"]["line"];
+			esp.pickup.text = j["esp"]["pickup"]["text"];
+			esp.pickup.color = (ImColor)j["esp"]["pickup"]["color"];
+			esp.object.enable = j["esp"]["object"]["enbale"];
+			esp.object.line = j["esp"]["object"]["line"];
+			esp.object.text = j["esp"]["object"]["text"];
+			esp.object.color = (ImColor)j["esp"]["object"]["color"];
+		}
+		catch (...)
+		{
+
+		}
 	}
 	~settings()
 	{
