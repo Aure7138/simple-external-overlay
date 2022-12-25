@@ -1,4 +1,4 @@
-#include "../common.hpp"
+#include "common.hpp"
 
 void update_esp_data_thread()
 {

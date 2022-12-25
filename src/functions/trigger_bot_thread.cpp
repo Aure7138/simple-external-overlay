@@ -1,4 +1,4 @@
-#include "../common.hpp"
+#include "common.hpp"
 
 void trigger_bot_thread()
 {

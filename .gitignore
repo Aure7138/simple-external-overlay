@@ -372,5 +372,7 @@ FodyWeavers.xsd
 
 
 
-file.json
+settings.json
 imgui.ini
+
+bin/

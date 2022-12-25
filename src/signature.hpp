@@ -54,7 +54,7 @@ public:
             if (str == "?" || str == "??")
                 pattern_2.push_back(std::nullopt);
             else
-                pattern_2.push_back(strtol(str.c_str(), nullptr, 16));
+                pattern_2.push_back((char)strtol(str.c_str(), nullptr, 16));
         }
 
         for (size_t i = 0; i < m_size - pattern_2.size() + 1; i++)
@@ -89,4 +89,6 @@ public:
     }
 
     template<typename T> T as() { return (T)m_temp; }
+
+    operator uintptr_t() const { return m_temp; }
 };

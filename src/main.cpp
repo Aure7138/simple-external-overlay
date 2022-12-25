@@ -1,3 +1,5 @@
+#include "common.hpp"
+
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
 static IDXGISwapChain* g_pSwapChain = NULL;
@@ -29,22 +31,22 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
     ReplayInterfacePointer = GTA5_exe.scan("E8 ? ? ? ? 40 02 FB 40 0A F0 40 3A FB 72 E1 40 84 F6 75 72 81 7D ? ? ? ? ? 75 69 81 7D ? ? ? ? ? 75 60 8B 05 ? ? ? ? 39 45 BC").add(1).rip().add(0x84).add(3).rip().as<uintptr_t>();
     spdlog::info("ReplayInterfacePointer        : {:0X}", ReplayInterfacePointer);
 	
-    CPedFactoryPointer = GTA5_exe.scan("75 17 48 8B 0D ? ? ? ? 8B C3").add(2).add(3).rip().as<uintptr_t>();
+    CPedFactoryPointer = GTA5_exe.scan("75 17 48 8B 0D ? ? ? ? 8B C3").add(2).add(3).rip();
     spdlog::info("CPedFactoryPointer            : {:0X}", CPedFactoryPointer);
 	
-    CViewportGamePointer = GTA5_exe.scan("48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD").add(3).rip().as<uintptr_t>();
+    CViewportGamePointer = GTA5_exe.scan("48 8B 15 ? ? ? ? 48 8D 2D ? ? ? ? 48 8B CD").add(3).rip();
     spdlog::info("CViewportGamePointer          : {:0X}", CViewportGamePointer);
 	
-    WindowWidth = GTA5_exe.scan("F3 0F 10 1D ? ? ? ? 8B 0D").add(8).add(2).rip().as<uintptr_t>();
+    WindowWidth = GTA5_exe.scan("F3 0F 10 1D ? ? ? ? 8B 0D").add(8).add(2).rip();
     spdlog::info("WindowWidth                   : {:0X}", WindowWidth);
 	
-    camGameplayDirectorPointer = GTA5_exe.scan("48 8B 05 ? ? ? ? 38 98 ? ? ? ? 8A C3").add(3).rip().as<uintptr_t>();
+    camGameplayDirectorPointer = GTA5_exe.scan("48 8B 05 ? ? ? ? 38 98 ? ? ? ? 8A C3").add(3).rip();
     spdlog::info("camGameplayDirectorPointer    : {:0X}", camGameplayDirectorPointer);
     
-    CNetworkPlayerMgrPointer = GTA5_exe.scan("48 8B 0D ? ? ? ? E8 ? ? ? ? 48 85 C0 74 37").add(3).rip().as<uintptr_t>();
+    CNetworkPlayerMgrPointer = GTA5_exe.scan("48 8B 0D ? ? ? ? E8 ? ? ? ? 48 85 C0 74 37").add(3).rip();
     spdlog::info("CNetworkPlayerMgrPointer      : {:0X}", CNetworkPlayerMgrPointer);
     
-    AimCPedPointer = GTA5_exe.scan("E8 ? ? ? ? B1 01 48 81 C4").add(1).rip().add(0x293).add(3).rip().as<uintptr_t>();
+    AimCPedPointer = GTA5_exe.scan("E8 ? ? ? ? B1 01 48 81 C4").add(1).rip().add(0x293).add(3).rip();
     spdlog::info("AimCPedPointer                : {:0X}", AimCPedPointer);
 
     g_settings = std::make_unique<settings>();
@@ -189,7 +191,6 @@ int main()//int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PW
             main_window();
         esp_window();
 
-        ImGui::EndFrame();
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
@@ -380,8 +381,8 @@ void esp_window()
                     Vector3 image_coords_2;
                     if (WorldToScreen(esp_vehicle.item[i].world_coords, image_coords, esp_matirx, esp_game_width, esp_game_height) && WorldToScreen(world_coords_2, image_coords_2, esp_matirx, esp_game_width, esp_game_height))
                     {
-                        int box_height = (image_coords.y - image_coords_2.y) * 2;
-                        int box_width = box_height / 2.4;
+                        int box_height = (int)((image_coords.y - image_coords_2.y) * 2);
+                        int box_width = (int)(box_height / 2.4);
                         if (g_settings->esp.vehicle.line)
                         {
                             ImGui::GetBackgroundDrawList()->AddLine({ (float)esp_game_width / 2, 0 }, { image_coords.x, image_coords.y }, g_settings->esp.vehicle.color);
@@ -406,8 +407,8 @@ void esp_window()
                     Vector3 image_coords_2;
                     if (WorldToScreen(esp_ped.item[i].world_coords, image_coords, esp_matirx, esp_game_width, esp_game_height) && WorldToScreen(world_coords_2, image_coords_2, esp_matirx, esp_game_width, esp_game_height))
                     {
-                        int box_height = (image_coords.y - image_coords_2.y) * 2;
-                        int box_width = box_height / 2.4;
+                        int box_height = (int)((image_coords.y - image_coords_2.y) * 2);
+                        int box_width = (int)(box_height / 2.4);
                         if (g_settings->esp.ped.line)
                         {
                             ImGui::GetBackgroundDrawList()->AddLine({ (float)esp_game_width / 2, 0 }, { image_coords.x, image_coords.y }, g_settings->esp.ped.color);
@@ -458,8 +459,8 @@ void esp_window()
                     Vector3 image_coords_2;
                     if (WorldToScreen(esp_pickup.item[i].world_coords, image_coords, esp_matirx, esp_game_width, esp_game_height) && WorldToScreen(world_coords_2, image_coords_2, esp_matirx, esp_game_width, esp_game_height))
                     {
-                        int box_height = (image_coords.y - image_coords_2.y) * 2;
-                        int box_width = box_height / 2.4;
+                        int box_height = (int)((image_coords.y - image_coords_2.y) * 2);
+                        int box_width = (int)(box_height / 2.4);
                         if (g_settings->esp.pickup.line)
                         {
                             ImGui::GetBackgroundDrawList()->AddLine({ (float)esp_game_width / 2, 0 }, { image_coords.x, image_coords.y }, g_settings->esp.pickup.color);
@@ -483,8 +484,8 @@ void esp_window()
                     Vector3 image_coords_2;
                     if (WorldToScreen(esp_object.item[i].world_coords, image_coords, esp_matirx, esp_game_width, esp_game_height) && WorldToScreen(world_coords_2, image_coords_2, esp_matirx, esp_game_width, esp_game_height))
                     {
-                        int box_height = (image_coords.y - image_coords_2.y) * 2;
-                        int box_width = box_height / 2.4;
+                        int box_height = (int)((image_coords.y - image_coords_2.y) * 2);
+                        int box_width = (int)(box_height / 2.4);
                         if (g_settings->esp.object.line)
                         {
                             ImGui::GetBackgroundDrawList()->AddLine({ (float)esp_game_width / 2, 0 }, { image_coords.x, image_coords.y }, g_settings->esp.object.color);
